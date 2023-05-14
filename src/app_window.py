@@ -1,10 +1,22 @@
 #!/usr/bin/python3
 import sys
 import os
+import locale
+import json
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, Gio, GLib
+
+p_lang = locale.getlocale()[0]
+r_lang = p_lang[:-3]
+
+try:
+    locale = open(f"/app/translations/{r_lang}.json")
+except:
+    locale = open("/app/translations/en.json")
+    
+_ = json.load(locale)
 
 class BTWindow(Gtk.Window):
     def __init__(self, *args, **kwargs):
@@ -18,7 +30,7 @@ class BTWindow(Gtk.Window):
         
         # App menu
         self.menu_button_model = Gio.Menu()
-        self.menu_button_model.append("About app", 'app.about')
+        self.menu_button_model.append(_["about_app"], 'app.about')
         self.menu_button = Gtk.MenuButton.new()
         self.menu_button.set_icon_name(icon_name='open-menu-symbolic')
         self.menu_button.set_menu_model(menu_model=self.menu_button_model)
@@ -29,7 +41,7 @@ class BTWindow(Gtk.Window):
         self.tr_button_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 5)
         self.tr_button_box.append(Gtk.Image.new_from_icon_name( \
             'transmission-symbolic'))
-        self.tr_button_box.append(Gtk.Label.new("Translate"))
+        self.tr_button_box.append(Gtk.Label.new(_["translate"]))
         self.translateButton.set_child(self.tr_button_box)
         self.translateButton.set_can_focus(True)
         self.translateButton.add_css_class('suggested-action')
@@ -44,12 +56,12 @@ class BTWindow(Gtk.Window):
         
         # Title Image (Binary Translator icon)
         self.titleImage = Gtk.Image.new_from_icon_name("io.github.vikdevelop.BinaryTranslator")
-        self.titleImage.set_pixel_size(64)
+        self.titleImage.set_pixel_size(128)
         self.binaryBox.append(self.titleImage)
         
         # Label about Binary Translator
         self.titleLabel = Gtk.Label.new()
-        self.titleLabel.set_markup("<big><b>Binary translator</b></big>\nTranslate text to binary and vice versa.")
+        self.titleLabel.set_markup(f"<big><b>Binary translator</b></big>\n{_['bt_desc']}")
         self.titleLabel.set_justify(Gtk.Justification.CENTER)
         self.binaryBox.append(self.titleLabel)
         
@@ -61,12 +73,12 @@ class BTWindow(Gtk.Window):
         
         # Input entry
         self.inputEntry = Adw.EntryRow.new()
-        self.inputEntry.set_title("Enter normal or binary text to translate")
+        self.inputEntry.set_title(_["input_entry"])
         self.entryBox.append(self.inputEntry)
         
         # Output entry
         self.outputEntry = Adw.EntryRow()
-        self.outputEntry.set_title("Output of normal or binary text")
+        self.outputEntry.set_title(_["output_entry"])
         self.outputEntry.set_editable(False)
         self.entryBox.append(self.outputEntry)
         
@@ -98,7 +110,10 @@ class BTApp(Adw.Application):
         dialog = Adw.AboutWindow(transient_for=app.get_active_window())
         dialog.set_application_name("Binary translator")
         dialog.set_developer_name("vikdevelop")
-        #dialog.set_translator_credits(_["translator_credits"])
+        if r_lang == 'en':
+            print("")
+        else:
+            dialog.set_translator_credits(_["translator_credits"])
         dialog.set_license_type(Gtk.License(Gtk.License.GPL_3_0))
         dialog.set_website("https://github.com/vikdevelop/BinaryTranslator")
         dialog.set_issue_url("https://github.com/vikdevelop/BinaryTranslator")
