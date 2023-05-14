@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Binary Translator
+Type=Application
+Comment=Translate text to binary and vice versa
+Exec=run.sh
+Icon=io.github.vikdevelop.BinaryTranslator
+Categories=Utility;
