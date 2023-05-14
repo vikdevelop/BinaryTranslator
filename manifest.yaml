@@ -13,7 +13,7 @@ modules:
     buildsystem: simple
     build-commands:
        - install -Dm755 -t /app/bin run.sh
-       - install -Dm755 -t /app app_window.py
+       - install -Dm755 -t /app src/app_window.py
        - install -D -t /app/share/applications flatpak/io.github.vikdevelop.BinaryTranslator.desktop
        - install -D -t /app/share/icons/hicolor/scalable/apps flatpak/icons/io.github.vikdevelop.BinaryTranslator.png
        - install -D -t /app/share/metainfo flatpak/io.github.vikdevelop.BinaryTranslator.metainfo.xml
