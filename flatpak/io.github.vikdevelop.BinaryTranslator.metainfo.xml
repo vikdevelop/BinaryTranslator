@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+    
+    <id>io.github.vikdevelop.BinaryTranslator</id>
+    <launchable type="desktop-id">io.github.vikdevelop.BinaryTranslator.desktop</launchable>
+    <name>Binary translator</name>
+    <summary>Translate text to binary and vice versa</summary>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+    <developer_name>vikdevelop</developer_name>
+    
+    <description>
+      <p>Translate text to binary and vice versa.</p>
+    </description>
+    <description xml:lang="cs_CZ">
+      <p>Překládejte text do binárního textu a naopak.</p>
+    </description>
+    
+    <url type="homepage">https://github.com/vikdevelop/BinaryTranslator</url>
+    <url type="bugtracker">https://github.com/vikdevelop/BinaryTranslator/issues</url>
+    <!--url type="translate"></url-->
+    
+    <screenshots>
+        <screenshot type="default">
+            <image>https://raw.githubusercontent.com/vikdevelop/BinaryTranslator/main/flatpak/screenshot/binary_translator.png</image>
+        </screenshot>
+    </screenshots>
+    
+    <content_rating type="oars-1.1"/>
+    
+    <categories>
+        <category>Utility</category>
+    </categories>
+          
+    <releases>
+       <release version="1.0" date="2023-05-14">
+          <description>
+            <p>First release</p>
+          </description>
+       </release>
+    </releases>
+    
+</component>
