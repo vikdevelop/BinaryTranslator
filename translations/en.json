@@ -1,0 +1,8 @@
+{
+	"bt_desc": "Translate text to binary and vice versa.",
+	"input_entry": "Enter normal or binary text to translate",
+	"output_entry": "Output of normal or binary text",
+	"translate": "Translate",
+	"about_app": "About app",
+	"translator_credits": "Enter you translator credits such as your name and email or link on Github or Weblate."
+}
