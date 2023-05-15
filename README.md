@@ -8,7 +8,7 @@
 ## Build
 For build and install this app, use this command:
 ```
-wget -qO /tmp/build.sh https://raw.githubusercontent.com/vikdevelop/apm/main/build.sh && sh /tmp/build.sh
+wget -qO /tmp/build.sh https://raw.githubusercontent.com/vikdevelop/BinaryTranslator/main/build.sh && sh /tmp/build.sh
 ```
 
 # Screenshots
