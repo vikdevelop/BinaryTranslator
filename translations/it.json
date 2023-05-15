@@ -1,0 +1,8 @@
+{
+	"bt_desc": "Traduci il testo in binario e viceversa.",
+	"input_entry": "Inserisci il testo normale o binario da tradurre",
+	"output_entry": "Output di testo normale o binario",
+	"translate": "Traduci",
+	"about_app": "Informazione sull'app",
+	"translator_credits": "Albano Battistella <albanobattistella@gmail.com>."
+}
