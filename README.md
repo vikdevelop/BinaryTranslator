@@ -6,7 +6,7 @@
 
 
 ## Build
-For build this app you will need to have installed Flatpak builder and downloaded file `manifest.yaml`. If you have installed Flatpak builder and downloaded file `manifest.yaml`, just use this command:
+For build this app you will need to have installed Flatpak builder and cloned this repository. If you have installed Flatpak builder and cloned this repository, just use this command:
 ```
 flatpak-builder build *.yaml --install --user
 ```
