@@ -6,9 +6,10 @@
 
 
 ## Build
-For build this app you will need to have installed Flatpak builder and cloned this repository. If you have installed Flatpak builder and cloned this repository, just use this command:
+For build and install this app, use this command:
 ```
-flatpak-builder build *.yaml --install --user
+wget -qO /tmp/build.sh https://raw.githubusercontent.com/vikdevelop/apm/main/build.sh && sh /tmp/build.sh
 ```
+
 # Screenshots
 ![screenshot](/flatpak/screenshot/binary_translator.png)
