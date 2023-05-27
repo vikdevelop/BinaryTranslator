@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schemalist>
+    <schema id="io.github.vikdevelop.BinaryTranslator" path="/io/github/vikdevelop/BinaryTranslator/">
+        <key name="window-size" type="(ii)">
+            <default>(120,600)</default>
+            <summary>Window size</summary>
+        </key>
+        <key name="is-maximized" type="b">
+            <default>false</default>
+            <summary>Window maximized state</summary>
+        </key>
+    </schema>
+</schemalist>
