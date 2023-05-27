@@ -25,8 +25,17 @@ class BTWindow(Gtk.Window):
         self.headerbar = Gtk.HeaderBar.new()
         self.set_titlebar(titlebar=self.headerbar)
         self.application = kwargs.get('application')
+        self.connect("close-request", self.on_close)
+        
+        self.settings = Gio.Settings.new_with_path("io.github.vikdevelop.BinaryTranslator", "/io/github/vikdevelop/BinaryTranslator/")
         
         self.set_size_request(120, 600)
+        
+        (width, height) = self.settings["window-size"]
+        self.set_default_size(width, height)
+        
+        if self.settings["is-maximized"]:
+            self.maximize()
         
         # App menu
         self.menu_button_model = Gio.Menu()
@@ -99,6 +108,11 @@ class BTWindow(Gtk.Window):
         else:
             res = ''.join(format(ord(i), '08b') for i in input_e)
             self.outputEntry.set_text(res)
+            
+    def on_close(self, widget, *args):
+        (width, height) = self.get_default_size()
+        self.settings["window-size"] = (width, height)
+        self.settings["is-maximized"] = self.is_maximized()
         
 class BTApp(Adw.Application):
     def __init__(self, **kwargs):
