@@ -2,7 +2,7 @@
 <schemalist>
     <schema id="io.github.vikdevelop.BinaryTranslator" path="/io/github/vikdevelop/BinaryTranslator/">
         <key name="window-size" type="(ii)">
-            <default>(120,600)</default>
+            <default>(503, 606)</default>
             <summary>Window size</summary>
         </key>
         <key name="is-maximized" type="b">
