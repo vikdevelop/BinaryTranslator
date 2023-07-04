@@ -29,7 +29,7 @@ class BTWindow(Gtk.Window):
         
         self.settings = Gio.Settings.new_with_path("io.github.vikdevelop.BinaryTranslator", "/io/github/vikdevelop/BinaryTranslator/")
         
-        self.set_size_request(120, 600)
+        self.set_size_request(503, 606)
         
         (width, height) = self.settings["window-size"]
         self.set_default_size(width, height)
