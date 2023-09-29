@@ -4,5 +4,11 @@
 	"output_entry": "Output di testo normale o binario",
 	"translate": "Traduci",
 	"about_app": "Informazione sull'app",
+	"saved_binary_texts": "Saved binary texts",
+	"saved_binary_texts_warning": "You have not saved any binary text",
+	"cancel": "Cancel",
+	"remove": "Remove",
+	"removed": "Removed",
+	"use": "Use",
 	"translator_credits": "Albano Battistella <albanobattistella@gmail.com>."
 }
