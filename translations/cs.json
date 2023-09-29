@@ -4,5 +4,11 @@
 	"output_entry": "Výstup běžného nebo binárního textu",
 	"translate": "Přeložit",
 	"about_app": "O aplikaci",
+	"saved_binary_texts": "Uložené binární texty",
+	"saved_binary_texts_warning": "Nemáte uložený žádný binární text",
+	"cancel": "Zrušit",
+	"remove": "Odstranit",
+	"removed": "Odstraněno",
+	"use": "Použít",
 	"translator_credits": "vikdevelop https://github.com/vikdevelop"
 }
