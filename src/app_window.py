@@ -35,18 +35,18 @@ class Dialog_set(Adw.MessageDialog):
         self.setdBox.get_style_context().add_class(class_name='boxed-list')
         self.set_extra_child(self.setdBox)
         
+        self.add_response('cancel', _["cancel"])
+        
         if os.path.exists(f"{DATA}/binaries.txt"):
             self.binaries_in = subprocess.getoutput(f"cat {DATA}/binaries.txt")
             self.binaries_out = self.binaries_in.split()
             if self.binaries_out == []:
                 self.set_body(_["saved_binary_texts_warning"])
-                self.add_response('cancel', _["cancel"])
             else:
                 self.add_response('remove', _["remove"])
                 self.show_text()
         else:
             self.set_body(_["saved_binary_texts_warning"])
-            self.add_response('cancel', _["cancel"])
             
         self.set_response_appearance('remove', Adw.ResponseAppearance.DESTRUCTIVE)
         self.connect('response', self.dialog_response)
@@ -65,19 +65,21 @@ class Dialog_set(Adw.MessageDialog):
         self.import_row.set_model(model=actions)
         self.setdBox.append(child=self.import_row)
         self.add_response('ok', _["use"])
+        self.set_response_appearance('ok', Adw.ResponseAppearance.SUGGESTED)
         
     def dialog_response(self, dialog, response):
         sel_item = self.import_row.get_selected_item()
+        item_with_dashes = sel_item.get_string()
+        item_with_spaces = item_with_dashes.replace("_", " ")
         if response == 'ok':
             self.settings["use-string"] = True
-            item_with_dashes = sel_item.get_string()
-            item_with_spaces = item_with_dashes.replace("_", " ")
             self.settings["string"] = item_with_spaces
             python = sys.executable
             os.execl(python, python, *sys.argv)
         elif response == 'remove':
             os.system(f"sed -i 's\%s\ \ ' %s/binaries.txt" % (sel_item.get_string(), DATA))
             self.settings["removing-strings"] = True
+            self.settings["string"] = item_with_spaces
             python = sys.executable
             os.execl(python, python, *sys.argv)
 
@@ -164,9 +166,9 @@ class BTWindow(Gtk.Window):
             self.settings["use-string"] = False
             
         if self.settings["removing-strings"] == True:
-            self.settings["string"] = ""
-            self.toast = Adw.Toast.new(title=_["removed"])
+            self.toast = Adw.Toast.new(title=f'{self.settings["string"]} {_["removed"]}')
             self.toast_overlay.add_toast(self.toast)
+            #self.settings["string"] = ""
             self.settings["removing-strings"] = False
         
         # Output entry
@@ -211,6 +213,7 @@ class BTWindow(Gtk.Window):
         self.settings["is-maximized"] = self.is_maximized()
         self.settings["use-string"] = False
         self.settings["removing-strings"] = False
+        self.settings["string"] = ""
         
 class BTApp(Adw.Application):
     def __init__(self, **kwargs):
