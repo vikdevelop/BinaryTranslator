@@ -24,7 +24,7 @@ DATA = f"{Path.home()}/.var/app/io.github.vikdevelop.BinaryTranslator/data"
 class Dialog_set(Adw.MessageDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(transient_for=app.get_active_window(), **kwargs)
-        self.set_heading("Saved binary texts")
+        self.set_heading(_["saved_binary_texts"])
         self.set_body_use_markup(True)
         
         self.settings = Gio.Settings.new_with_path("io.github.vikdevelop.BinaryTranslator", "/io/github/vikdevelop/BinaryTranslator/")
@@ -39,14 +39,14 @@ class Dialog_set(Adw.MessageDialog):
             self.binaries_in = subprocess.getoutput(f"cat {DATA}/binaries.txt")
             self.binaries_out = self.binaries_in.split()
             if self.binaries_out == []:
-                self.set_body("You have not any binary text")
-                self.add_response('cancel', "Cancel")
+                self.set_body(_["saved_binary_texts_warning"])
+                self.add_response('cancel', _["cancel"])
             else:
-                self.add_response('remove', "Remove")
+                self.add_response('remove', _["remove"])
                 self.show_text()
         else:
-            self.set_body("You have not any binary text")
-            self.add_response('cancel', "Cancel")
+            self.set_body(_["saved_binary_texts_warning"])
+            self.add_response('cancel', _["cancel"])
             
         self.set_response_appearance('remove', Adw.ResponseAppearance.DESTRUCTIVE)
         self.connect('response', self.dialog_response)
@@ -64,7 +64,7 @@ class Dialog_set(Adw.MessageDialog):
         self.import_row.set_subtitle_lines(4)
         self.import_row.set_model(model=actions)
         self.setdBox.append(child=self.import_row)
-        self.add_response('ok', "Use")
+        self.add_response('ok', _["use"])
         
     def dialog_response(self, dialog, response):
         sel_item = self.import_row.get_selected_item()
@@ -77,6 +77,9 @@ class Dialog_set(Adw.MessageDialog):
             os.execl(python, python, *sys.argv)
         elif response == 'remove':
             os.system(f"sed -i 's\%s\ \ ' %s/binaries.txt" % (sel_item.get_string(), DATA))
+            self.settings["removing-strings"] = True
+            python = sys.executable
+            os.execl(python, python, *sys.argv)
 
 class BTWindow(Gtk.Window):
     def __init__(self, *args, **kwargs):
@@ -99,7 +102,7 @@ class BTWindow(Gtk.Window):
         
         # App menu
         self.menu_button_model = Gio.Menu()
-        self.menu_button_model.append("Show binary texts", 'app.set_binary')
+        self.menu_button_model.append(_["saved_binary_texts"], 'app.set_binary')
         self.menu_button_model.append(_["about_app"], 'app.about')
         self.menu_button = Gtk.MenuButton.new()
         self.menu_button.set_icon_name(icon_name='open-menu-symbolic')
@@ -123,6 +126,16 @@ class BTWindow(Gtk.Window):
         self.binaryBox.set_halign(Gtk.Align.CENTER)
         self.binaryBox.set_valign(Gtk.Align.CENTER)
         self.set_child(self.binaryBox)
+        
+        # Toast overlay
+        self.toast_overlay = Adw.ToastOverlay.new()
+        self.toast_overlay.set_margin_top(margin=1)
+        self.toast_overlay.set_margin_end(margin=1)
+        self.toast_overlay.set_margin_bottom(margin=1)
+        self.toast_overlay.set_margin_start(margin=1)
+        
+        self.set_child(self.toast_overlay)
+        self.toast_overlay.set_child(self.binaryBox)
         
         # Title Image (Binary Translator icon)
         self.titleImage = Gtk.Image.new_from_icon_name("io.github.vikdevelop.BinaryTranslator")
@@ -148,6 +161,13 @@ class BTWindow(Gtk.Window):
         
         if self.settings["use-string"] == True:
             self.inputEntry.set_text(self.settings["string"])
+            self.settings["use-string"] = False
+            
+        if self.settings["removing-strings"] == True:
+            self.settings["string"] = ""
+            self.toast = Adw.Toast.new(title=_["removed"])
+            self.toast_overlay.add_toast(self.toast)
+            self.settings["removing-strings"] = False
         
         # Output entry
         self.outputEntry = Adw.EntryRow()
@@ -190,6 +210,7 @@ class BTWindow(Gtk.Window):
         self.settings["window-size"] = (width, height)
         self.settings["is-maximized"] = self.is_maximized()
         self.settings["use-string"] = False
+        self.settings["removing-strings"] = False
         
 class BTApp(Adw.Application):
     def __init__(self, **kwargs):
