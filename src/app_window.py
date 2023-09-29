@@ -120,7 +120,7 @@ class BTWindow(Gtk.Window):
         self.translateButton.set_child(self.tr_button_box)
         self.translateButton.set_can_focus(True)
         self.translateButton.add_css_class('suggested-action')
-        self.translateButton.connect("clicked", self.translation)
+        self.translateButton.connect("clicked", self.translation_button_clicked)
         self.headerbar.pack_start(self.translateButton)
         
         # primary Gtk.Box
@@ -161,24 +161,27 @@ class BTWindow(Gtk.Window):
         self.inputEntry.set_title(_["input_entry"])
         self.entryBox.append(self.inputEntry)
         
-        if self.settings["use-string"] == True:
-            self.inputEntry.set_text(self.settings["string"])
-            self.settings["use-string"] = False
-            
-        if self.settings["removing-strings"] == True:
-            self.toast = Adw.Toast.new(title=f'{self.settings["string"]} {_["removed"]}')
-            self.toast_overlay.add_toast(self.toast)
-            #self.settings["string"] = ""
-            self.settings["removing-strings"] = False
-        
         # Output entry
         self.outputEntry = Adw.EntryRow()
         self.outputEntry.set_title(_["output_entry"])
         self.outputEntry.set_editable(False)
         self.entryBox.append(self.outputEntry)
         
+        if self.settings["use-string"] == True:
+            self.inputEntry.set_text(self.settings["string"])
+            self.translation()
+            self.settings["use-string"] = False
+        
+        if self.settings["removing-strings"] == True:
+            self.toast = Adw.Toast.new(title=f'{self.settings["string"]} {_["removed"]}')
+            self.toast_overlay.add_toast(self.toast)
+            self.settings["removing-strings"] = False
+        
+    def translation_button_clicked(self, w):
+        self.translation()
+    
     # Translate text to binary and vice versa
-    def translation(self, w):
+    def translation(self):
         input_e = self.inputEntry.get_text()
         if "1" in input_e:
             def binary_to_string(input_e):
