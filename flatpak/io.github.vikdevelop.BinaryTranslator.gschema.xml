@@ -17,5 +17,9 @@
             <default>''</default>
             <summary>String</summary>
         </key>
+        <key name="removing-strings" type="b">
+            <default>false</default>
+            <summary>removing strings</summary>
+        </key>
     </schema>
 </schemalist>
