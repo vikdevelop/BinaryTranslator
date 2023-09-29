@@ -4,5 +4,11 @@
 	"output_entry": "Output of normal or binary text",
 	"translate": "Translate",
 	"about_app": "About app",
-	"translator_credits": "Enter you translator credits such as your name and email or link on Github or Weblate."
+	"saved_binary_texts": "Saved binary texts",
+	"saved_binary_texts_warning": "You have not saved any binary text",
+	"cancel": "Cancel",
+	"remove": "Remove",
+	"removed": "Removed",
+	"use": "Use",
+	"translator_credits": "Enter your translator credits such as your name and email or link on Github or Weblate."
 }
