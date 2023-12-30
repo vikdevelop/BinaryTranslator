@@ -18,7 +18,7 @@ apps:
 parts:
   binarytranslator:
     source: https://github.com/vikdevelop/BinaryTranslator.git
-    source-tag: 1.1
+    #source-tag: 1.1
     plugin: nil
     override-pull: |
       craftctl default
