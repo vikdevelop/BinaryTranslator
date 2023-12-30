@@ -1,2 +1,7 @@
 #!/usr/bin/bash
-python3 /app/app_window.py
+if [ "$SNAP" == "" ]
+then
+	python3 /app/app_window.py
+else
+	python3 $SNAP/usr/app_window.py
+fi
