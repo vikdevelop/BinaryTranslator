@@ -1,0 +1,36 @@
+name: binarytranslator
+grade: stable
+adopt-info: binarytranslator
+license: GPL-3.0+
+
+base: core22
+confinement: strict
+      
+apps:
+  binarytranslator:
+    extensions: [gnome]
+    command: usr/bin/run.sh
+    desktop: usr/share/applications/io.github.vikdevelop.BinaryTranslator.desktop
+    common-id: io.github.vikdevelop.BinaryTranslator.desktop
+    plugs:
+    - gsettings
+
+parts:
+  binarytranslator:
+    source: https://github.com/vikdevelop/BinaryTranslator.git
+    source-tag: 1.1
+    plugin: nil
+    override-pull: |
+      craftctl default
+      sed -e "s|Icon=io.github.vikdevelop.BinaryTranslator|Icon=usr/share/icons/hicolor/scalable/apps/io.github.vikdevelop.BinaryTranslator.png|" -i $CRAFT_PART_SRC/flatpak/io.github.vikdevelop.BinaryTranslator.desktop
+    override-build: |
+      set -eux
+      install -Dm755 -t $CRAFT_PART_INSTALL/usr $CRAFT_PART_SRC/src/app_window.py
+      install -D -t $CRAFT_PART_INSTALL/usr/share/applications $CRAFT_PART_SRC/flatpak/io.github.vikdevelop.BinaryTranslator.desktop
+      install -D -t $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps $CRAFT_PART_SRC/flatpak/icons/io.github.vikdevelop.BinaryTranslator.png
+      install -D -t $CRAFT_PART_INSTALL/usr/share/metainfo $CRAFT_PART_SRC/flatpak/io.github.vikdevelop.BinaryTranslator.metainfo.xml
+      install -D -t $CRAFT_PART_INSTALL/usr/share/glib-2.0/schemas $CRAFT_PART_SRC/flatpak/io.github.vikdevelop.BinaryTranslator.gschema.xml
+      glib-compile-schemas $CRAFT_PART_INSTALL/usr/share/glib-2.0/schemas
+      cp -R $CRAFT_PART_SRC/translations $CRAFT_PART_INSTALL/usr/
+      install -Dm755 -t $CRAFT_PART_INSTALL/usr/bin $CRAFT_PART_SRC/run.sh
+    parse-info: [ usr/share/metainfo/io.github.vikdevelop.BinaryTranslator.metainfo.xml ]
