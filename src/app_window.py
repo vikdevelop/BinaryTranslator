@@ -13,13 +13,23 @@ from pathlib import Path
 p_lang = locale.getlocale()[0]
 r_lang = p_lang[:-3]
 
-try:
-    locale = open(f"/app/translations/{r_lang}.json")
-except:
-    locale = open("/app/translations/en.json")
+flatpak = os.path.exists("/.flatpak-info")
+snap = os.environ.get('SNAP_NAME', '') == 'binarytranslator'
+
+if flatpak:
+    try:
+        locale = open(f"/app/translations/{r_lang}.json")
+    except:
+        locale = open("/app/translations/en.json")
+    DATA = f"{Path.home()}/.var/app/io.github.vikdevelop.BinaryTranslator/data"
+elif snap:
+    try:
+        locale = open(f"{os.getenv('SNAP')}/usr/translations/{r_lang}.json")
+    except:
+        locale = open("{os.getenv('SNAP')}/usr/translations/en.json")
+    DATA = f"{os.getenv('SNAP_USER_DATA')}/.local/share"
     
 _ = json.load(locale)
-DATA = f"{Path.home()}/.var/app/io.github.vikdevelop.BinaryTranslator/data"
 
 class Dialog_set(Adw.MessageDialog):
     def __init__(self, *args, **kwargs):
