@@ -31,68 +31,6 @@ elif snap:
     
 _ = json.load(locale)
 
-class Dialog_set(Adw.MessageDialog):
-    def __init__(self, *args, **kwargs):
-        super().__init__(transient_for=app.get_active_window(), **kwargs)
-        self.set_heading(_["saved_binary_texts"])
-        self.set_body_use_markup(True)
-        
-        self.settings = Gio.Settings.new_with_path("io.github.vikdevelop.BinaryTranslator", "/io/github/vikdevelop/BinaryTranslator/")
-        
-        # Box for appending widgets
-        self.setdBox = Gtk.ListBox.new()
-        self.setdBox.set_selection_mode(mode=Gtk.SelectionMode.NONE)
-        self.setdBox.get_style_context().add_class(class_name='boxed-list')
-        self.set_extra_child(self.setdBox)
-        
-        self.add_response('cancel', _["cancel"])
-        
-        if os.path.exists(f"{DATA}/binaries.txt"):
-            self.binaries_in = subprocess.getoutput(f"cat {DATA}/binaries.txt")
-            self.binaries_out = self.binaries_in.split()
-            if self.binaries_out == []:
-                self.set_body(_["saved_binary_texts_warning"])
-            else:
-                self.add_response('remove', _["remove"])
-                self.show_text()
-        else:
-            self.set_body(_["saved_binary_texts_warning"])
-            
-        self.set_response_appearance('remove', Adw.ResponseAppearance.DESTRUCTIVE)
-        self.connect('response', self.dialog_response)
-        
-        self.show()
-        
-    def show_text(self):
-        actions = Gtk.StringList.new(strings=self.binaries_out)
-        
-        self.import_row = Adw.ComboRow.new()
-        self.import_row.set_use_markup(True)
-        self.import_row.set_use_underline(True)
-        self.import_row.set_title("")
-        self.import_row.set_title_lines(2)
-        self.import_row.set_subtitle_lines(4)
-        self.import_row.set_model(model=actions)
-        self.setdBox.append(child=self.import_row)
-        self.add_response('ok', _["use"])
-        self.set_response_appearance('ok', Adw.ResponseAppearance.SUGGESTED)
-        
-    def dialog_response(self, dialog, response):
-        sel_item = self.import_row.get_selected_item()
-        item_with_dashes = sel_item.get_string()
-        item_with_spaces = item_with_dashes.replace("_", " ")
-        if response == 'ok':
-            self.settings["use-string"] = True
-            self.settings["string"] = item_with_spaces
-            python = sys.executable
-            os.execl(python, python, *sys.argv)
-        elif response == 'remove':
-            os.system(f"sed -i 's\%s\ \ ' %s/binaries.txt" % (sel_item.get_string(), DATA))
-            self.settings["removing-strings"] = True
-            self.settings["string"] = item_with_spaces
-            python = sys.executable
-            os.execl(python, python, *sys.argv)
-
 class BTWindow(Gtk.Window):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -114,12 +52,18 @@ class BTWindow(Gtk.Window):
         
         # App menu
         self.menu_button_model = Gio.Menu()
-        self.menu_button_model.append(_["saved_binary_texts"], 'app.set_binary')
         self.menu_button_model.append(_["about_app"], 'app.about')
         self.menu_button = Gtk.MenuButton.new()
-        self.menu_button.set_icon_name(icon_name='open-menu-symbolic')
+        self.menu_button.set_icon_name(icon_name='help-about-symbolic')
+        self.menu_button.set_tooltip_text(_["about_app"])
         self.menu_button.set_menu_model(menu_model=self.menu_button_model)
         self.headerbar.pack_end(child=self.menu_button)
+        
+        self.textsButton = Gtk.Button.new_from_icon_name("list-drag-handle-symbolic")
+        self.textsButton.add_css_class("flat")
+        self.textsButton.set_tooltip_text(_["saved_binary_texts"])
+        self.textsButton.connect("clicked", self.saved_dialog)
+        self.headerbar.pack_end(child=self.textsButton)
         
         # Translate button
         self.translateButton = Gtk.Button.new()
@@ -177,16 +121,6 @@ class BTWindow(Gtk.Window):
         self.outputEntry.set_editable(False)
         self.entryBox.append(self.outputEntry)
         
-        if self.settings["use-string"] == True:
-            self.inputEntry.set_text(self.settings["string"])
-            self.translation()
-            self.settings["use-string"] = False
-        
-        if self.settings["removing-strings"] == True:
-            self.toast = Adw.Toast.new(title=f'{self.settings["string"]} {_["removed"]}')
-            self.toast_overlay.add_toast(self.toast)
-            self.settings["removing-strings"] = False
-        
     def translation_button_clicked(self, w):
         self.translation()
     
@@ -219,6 +153,62 @@ class BTWindow(Gtk.Window):
                     else:
                         with open(f"{DATA}/binaries.txt", "a") as wb:
                             wb.write(f'\n{without_spaces}')
+                            
+    def saved_dialog(self, w):
+        self.TextDialog = Adw.MessageDialog.new(self)
+        self.TextDialog.set_heading(_["saved_binary_texts"])
+        self.TextDialog.set_body_use_markup(True)
+        
+        # Box for appending widgets
+        self.setdBox = Gtk.ListBox.new()
+        self.setdBox.set_selection_mode(mode=Gtk.SelectionMode.NONE)
+        self.setdBox.get_style_context().add_class(class_name='boxed-list')
+        self.TextDialog.set_extra_child(self.setdBox)
+        
+        self.TextDialog.add_response('cancel', _["cancel"])
+        
+        if os.path.exists(f"{DATA}/binaries.txt"):
+            self.binaries_in = subprocess.getoutput(f"cat {DATA}/binaries.txt")
+            self.binaries_out = self.binaries_in.split()
+            if self.binaries_out == []:
+                self.TextDialog.set_body(_["saved_binary_texts_warning"])
+            else:
+                self.TextDialog.add_response('remove', _["remove"])
+                self.show_text()
+        else:
+            self.TextDialog.set_body(_["saved_binary_texts_warning"])
+            
+        self.TextDialog.set_response_appearance('remove', Adw.ResponseAppearance.DESTRUCTIVE)
+        self.TextDialog.connect('response', self.dialog_response)
+        
+        self.TextDialog.show()
+        
+    def show_text(self):
+        actions = Gtk.StringList.new(strings=self.binaries_out)
+        
+        self.import_row = Adw.ComboRow.new()
+        self.import_row.set_use_markup(True)
+        self.import_row.set_use_underline(True)
+        self.import_row.set_title("")
+        self.import_row.set_title_lines(2)
+        self.import_row.set_subtitle_lines(4)
+        self.import_row.set_model(model=actions)
+        self.setdBox.append(child=self.import_row)
+        self.TextDialog.add_response('ok', _["use"])
+        self.TextDialog.set_response_appearance('ok', Adw.ResponseAppearance.SUGGESTED)
+        
+    def dialog_response(self, w, response):
+        sel_item = self.import_row.get_selected_item()
+        item_with_dashes = sel_item.get_string()
+        item_with_spaces = item_with_dashes.replace("_", " ")
+        if response == 'ok':
+            self.settings["use-string"] = True
+            self.inputEntry.set_text(item_with_spaces)
+            self.translation()
+        elif response == 'remove':
+            os.system(f"sed -i 's\%s\ \ ' %s/binaries.txt" % (sel_item.get_string(), DATA))
+            self.toast = Adw.Toast.new(title=f'{item_with_spaces} {_["removed"]}')
+            self.toast_overlay.add_toast(self.toast)
             
     def on_close(self, widget, *args):
         (width, height) = self.get_default_size()
@@ -232,11 +222,7 @@ class BTApp(Adw.Application):
     def __init__(self, **kwargs):
         super().__init__(**kwargs, flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.create_action('about', self.on_about_action, ["F1"])
-        self.create_action('set_binary', self.set_binaries)
         self.connect('activate', self.on_activate)
-        
-    def set_binaries(self, action, param):
-        self.set_d = Dialog_set(self)
         
     def on_about_action(self, action, param):
         dialog = Adw.AboutWindow(transient_for=app.get_active_window())
