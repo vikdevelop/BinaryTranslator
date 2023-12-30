@@ -10,12 +10,15 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, Gio, GLib
 from pathlib import Path
 
+# Detect system language
 p_lang = locale.getlocale()[0]
 r_lang = p_lang[:-3]
 
+# Mechanism for checking application environment/runtime
 flatpak = os.path.exists("/.flatpak-info")
 snap = os.environ.get('SNAP_NAME', '') == 'binarytranslator'
 
+# Check what environment the application is running in
 if flatpak:
     try:
         locale = open(f"/app/translations/{r_lang}.json")
@@ -28,9 +31,11 @@ elif snap:
     except:
         locale = open("{os.getenv('SNAP')}/usr/translations/en.json")
     DATA = f"{os.getenv('SNAP_USER_DATA')}/.local/share"
-    
+
+# Load translation file
 _ = json.load(locale)
 
+# Application window
 class BTWindow(Gtk.Window):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,6 +45,7 @@ class BTWindow(Gtk.Window):
         self.application = kwargs.get('application')
         self.connect("close-request", self.on_close)
         
+        # Connect to GSettings database
         self.settings = Gio.Settings.new_with_path("io.github.vikdevelop.BinaryTranslator", "/io/github/vikdevelop/BinaryTranslator/")
         
         self.set_size_request(503, 606)
@@ -50,15 +56,13 @@ class BTWindow(Gtk.Window):
         if self.settings["is-maximized"]:
             self.maximize()
         
-        # App menu
-        self.menu_button_model = Gio.Menu()
-        self.menu_button_model.append(_["about_app"], 'app.about')
-        self.menu_button = Gtk.MenuButton.new()
-        self.menu_button.set_icon_name(icon_name='help-about-symbolic')
+        # Button for showing about dialog
+        self.menu_button = Gtk.Button.new_from_icon_name("help-about-symbolic")
         self.menu_button.set_tooltip_text(_["about_app"])
-        self.menu_button.set_menu_model(menu_model=self.menu_button_model)
+        self.menu_button.connect("clicked", self.about)
         self.headerbar.pack_end(child=self.menu_button)
         
+        # Button for showing dialog with saved binary texts
         self.textsButton = Gtk.Button.new_from_icon_name("list-drag-handle-symbolic")
         self.textsButton.add_css_class("flat")
         self.textsButton.set_tooltip_text(_["saved_binary_texts"])
@@ -146,6 +150,7 @@ class BTWindow(Gtk.Window):
                 with open(f"{DATA}/binaries.txt", "w") as b:
                     b.write(f'{without_spaces}')
             else:
+                # Check if the string from the input entry exists in the DATA/binaries.txt file
                 with open(f"{DATA}/binaries.txt") as rb:
                     f = rb.read()
                     if without_spaces in f:
@@ -153,7 +158,8 @@ class BTWindow(Gtk.Window):
                     else:
                         with open(f"{DATA}/binaries.txt", "a") as wb:
                             wb.write(f'\n{without_spaces}')
-                            
+    
+    # Dialog for selecting saved binary texts
     def saved_dialog(self, w):
         self.TextDialog = Adw.MessageDialog.new(self)
         self.TextDialog.set_heading(_["saved_binary_texts"])
@@ -167,6 +173,7 @@ class BTWindow(Gtk.Window):
         
         self.TextDialog.add_response('cancel', _["cancel"])
         
+        # Check, if data exists in the DATA/binaries.txt file
         if os.path.exists(f"{DATA}/binaries.txt"):
             self.binaries_in = subprocess.getoutput(f"cat {DATA}/binaries.txt")
             self.binaries_out = self.binaries_in.split()
@@ -182,7 +189,8 @@ class BTWindow(Gtk.Window):
         self.TextDialog.connect('response', self.dialog_response)
         
         self.TextDialog.show()
-        
+    
+    # Display data in the dialog window from the DATA/binaries.txt file
     def show_text(self):
         actions = Gtk.StringList.new(strings=self.binaries_out)
         
@@ -196,35 +204,26 @@ class BTWindow(Gtk.Window):
         self.setdBox.append(child=self.import_row)
         self.TextDialog.add_response('ok', _["use"])
         self.TextDialog.set_response_appearance('ok', Adw.ResponseAppearance.SUGGESTED)
-        
+    
+    # Response after clicking on any button in the dialog
     def dialog_response(self, w, response):
         sel_item = self.import_row.get_selected_item()
         item_with_dashes = sel_item.get_string()
         item_with_spaces = item_with_dashes.replace("_", " ")
+        # Response after clicking on "Use" button
         if response == 'ok':
             self.settings["use-string"] = True
             self.inputEntry.set_text(item_with_spaces)
             self.translation()
+        # Response after clicking on "Remove" button
         elif response == 'remove':
             os.system(f"sed -i 's\%s\ \ ' %s/binaries.txt" % (sel_item.get_string(), DATA))
+            # Show toast message about removed string
             self.toast = Adw.Toast.new(title=f'{item_with_spaces} {_["removed"]}')
             self.toast_overlay.add_toast(self.toast)
             
-    def on_close(self, widget, *args):
-        (width, height) = self.get_default_size()
-        self.settings["window-size"] = (width, height)
-        self.settings["is-maximized"] = self.is_maximized()
-        self.settings["use-string"] = False
-        self.settings["removing-strings"] = False
-        self.settings["string"] = ""
-        
-class BTApp(Adw.Application):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs, flags=Gio.ApplicationFlags.FLAGS_NONE)
-        self.create_action('about', self.on_about_action, ["F1"])
-        self.connect('activate', self.on_activate)
-        
-    def on_about_action(self, action, param):
+    # Show about dialog
+    def about(self, w):
         dialog = Adw.AboutWindow(transient_for=app.get_active_window())
         dialog.set_application_name("Binary translator")
         dialog.set_developer_name("vikdevelop")
@@ -241,7 +240,21 @@ class BTApp(Adw.Application):
         icon = "io.github.vikdevelop.BinaryTranslator"
         dialog.set_version(version)
         dialog.set_application_icon(icon)
-        dialog.show()    
+        dialog.show()
+    
+    # Action after closing the application window
+    def on_close(self, widget, *args):
+        (width, height) = self.get_default_size()
+        self.settings["window-size"] = (width, height)
+        self.settings["is-maximized"] = self.is_maximized()
+        self.settings["use-string"] = False
+        self.settings["removing-strings"] = False
+        self.settings["string"] = ""
+        
+class BTApp(Adw.Application):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs, flags=Gio.ApplicationFlags.FLAGS_NONE)
+        self.connect('activate', self.on_activate)
     
     def create_action(self, name, callback, shortcuts=None):
         action = Gio.SimpleAction.new(name, None)
