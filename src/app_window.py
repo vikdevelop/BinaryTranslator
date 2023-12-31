@@ -133,6 +133,10 @@ class BTWindow(Gtk.Window):
         input_e = self.inputEntry.get_text()
         if "1" in input_e:
             def binary_to_string(input_e):
+                if " " in input_e:
+                    o_e = f"{input_e}"
+                    old_e = o_e.replace(" ", "")
+                    input_e = f"{old_e}"
                 # Split the binary string into groups of 8 bits
                 binary_list = [input_e[i:i+8] for i in range(0, len(input_e), 8)]
                 # Convert each group of 8 bits to its corresponding character
